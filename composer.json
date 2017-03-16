@@ -1,0 +1,28 @@
+{
+  "name": "buuum/phenum",
+  "type": "library",
+  "description": "Php Enum",
+  "homepage": "https://github.com/buuum/PhEnum",
+  "keywords": [
+    "php",
+    "enum"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alfons Martinez",
+      "email": "alfonsmartinezparra@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "PhEnum\\": "src/PhEnum"
+    }
+  },
+  "require": {
+    "php": ">=5.5.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*"
+  }
+}
