@@ -5,61 +5,104 @@ namespace PhEnum;
 abstract class PhEnum
 {
 
-    public $value;
+    /**
+     * @var mixed
+     */
+    protected $value;
+
+    /**
+     * @var array
+     */
+    private static $consts = [];
 
     public function __construct($value)
     {
-        if (!self::isValidValue($value)) {
+        if (!self::isValid($value)) {
             throw new \Exception("This value is incorrect!");
         }
 
         $this->value = $value;
     }
 
-    private static $consts = [];
+
+    /**
+     * @return mixed
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * Returns the enum key (i.e. the constant name).
+     *
+     * @return mixed
+     */
+    public function getKey()
+    {
+        return self::search($this->value);
+    }
+
+    /**
+     * @param PhEnum $enum
+     * @return bool
+     */
+    final public function equals(PhEnum $enum)
+    {
+        return $this->getValue() === $enum->getValue();
+    }
+
+    /**
+     * @return array
+     */
+    public static function keys()
+    {
+        return array_keys(static::toArray());
+    }
+
+    /**
+     * @return array
+     */
+    public static function values()
+    {
+        return array_values(static::toArray());
+    }
 
     /**
      * @param $value
      * @param bool $strict
      * @return bool
      */
-    public static function isValidValue($value, $strict = true)
+    public static function isValid($value,  $strict = true)
     {
-        $values = array_values(self::getAll());
-        return in_array($value, $values, $strict);
+        return in_array($value, static::toArray(), $strict);
     }
 
     /**
-     * @param $name
-     * @param bool $strict
+     * @param $key
      * @return bool
      */
-    public static function isValidName($name, $strict = false)
+    public static function isValidKey($key)
     {
-        $constants = self::getAll();
-
-        if ($strict) {
-            return array_key_exists($name, $constants);
-        }
-
-        $keys = array_map('strtolower', array_keys($constants));
-        return in_array(strtolower($name), $keys);
+        $array = static::toArray();
+        return isset($array[$key]);
     }
+
 
     /**
      * @param $value
      * @return mixed
      */
-    public static function getName($value)
+    public static function search($value)
     {
-        $constants = self::getAll();
-        return array_search($value, $constants);
+        $constants = self::toArray();
+        return array_search($value, $constants, true);
     }
 
     /**
      * @return mixed
      */
-    public static function getAll()
+    public static function toArray()
     {
         $calledClass = get_called_class();
         if (!array_key_exists($calledClass, self::$consts)) {
@@ -69,8 +112,26 @@ abstract class PhEnum
         return self::$consts[$calledClass];
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
-        return "{$this->value}";
+        return (string)$this->value;
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     * @return static
+     * @throws \Exception
+     */
+    public static function __callStatic($name, $arguments)
+    {
+        $array = static::toArray();
+        if (isset($array[$name])) {
+            return new static($array[$name]);
+        }
+        throw new \Exception("No static method or enum constant '$name' in class " . get_called_class());
     }
 }
